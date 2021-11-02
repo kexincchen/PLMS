@@ -1,0 +1,2 @@
+kill $(lsof -ti:12344)
+python3 mainScript.py -i 192.168.2.2 -p 12344 -m RL_CLUSTER --pid=0

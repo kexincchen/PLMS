@@ -1,0 +1,385 @@
+---
+title: "Study 3"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r prerequisites, message=FALSE, warning=FALSE, paged.print=FALSE, echo=FALSE}
+rm(list = ls());
+setwd("/Users/bsyiem/Documents/UnityProjects/PLMS/RScripts");
+
+# for reading xlsx files
+library("xlsx")
+
+#used to easily plot qqplots and Anova
+library("car");
+library("ez");
+
+#for two way Anova
+library(tidyverse);
+library(ggpubr);
+library(rstatix);
+
+#Multilevel Linear Model
+library(lme4);
+library(lmerTest);
+
+#data formatting
+library(dplyr);
+library(tidyr);
+library(data.table);
+
+library(plyr);
+
+# for equivalence test
+library("TOSTER");
+
+library(pwr);
+
+library(rje);
+```
+
+```{r data-setup, include=FALSE}
+mpath <- "../PythonScripts/Data/Participant_Data/"
+mdata_file <- "data.xlsx"
+
+my_data <- read.xlsx(paste(mpath,mdata_file, sep = ""), sheetIndex = 1)
+
+my_data$pid <- as.factor(my_data$pid)
+my_data$gender <- as.factor(my_data$gender)
+my_data$mid_air <- as.factor(my_data$mid_air)
+my_data$problem_solving <- as.factor(my_data$problem_solving)
+
+my_data$q1 <- as.factor(my_data$q1)
+my_data$q2 <- as.factor(my_data$q2)
+my_data$q3 <- as.factor(my_data$q3)
+my_data$q4 <- as.factor(my_data$q4)
+my_data$q5 <- as.factor(my_data$q5)
+
+
+#RATE CORRECT SCORE -> "a comparison of methods to combine speed and accuracy measures of performance: a rejoining on the binning procedure" - Andre Vandierendonck
+#my_data$rcs <- sqrt(my_data$rcs) # since we have 0 values, we cannot use log transform and use a sqrt transform instead
+
+#discard participants
+to_discard <- c(5,7,25,29, 41,47,62)
+my_data <- my_data[!(my_data$pid %in% to_discard),]
+
+#outlier_discard <- c(2,30,39,11,28,34)
+#my_data <- my_data[!(my_data$pid %in% outlier_discard),]
+```
+
+## Summaries
+
+```{r summary, include=FALSE}
+summary(my_data)
+```
+
+The following shows a summary of the data grouped by method (Physical, AR, RL_CLUSTER). Summary indicates very slight differences in mean completion times.
+
+```{r completion-summary, echo=FALSE}
+completionTime_summary <- my_data %>% group_by(method) %>% get_summary_stats(completion_time, type = "mean_sd")
+completionTime_summary
+```
+
+The next set of results show the number of correct responses grouped by method.
+
+```{r error-rates, echo=FALSE}
+#number of correct responses grouped by method
+aggregate(my_data$all_q, by = list(my_data$method), FUN = sum)
+```
+
+## Rate Correct Score
+To analyse both error rates and completion times together, we use the RATE CORRECT SCORE ("A Comparison of Methods to Combine Speed and Accuracy Measures of Performance: a rejoining on the binning procedure" - Andre Vandierendonck). 
+
+RCS  = #correct responses / average response time
+
+and can be interpreted as the number of correct responses per second of task activity. (this value has been square root transformed).
+```{r rcs-summary, echo=FALSE}
+#Rate Correct Score (rcs) -> number of correct responses per second of activity
+rcs_summary <- my_data %>% group_by(method) %>% get_summary_stats(rcs, type = "mean_sd")
+rcs_summary
+```
+
+## ASSUMPTION TESTING
+
+```{r outlier-test, include=FALSE}
+my_data %>% group_by(method) %>% identify_outliers(completion_time);
+my_data %>% group_by(method) %>% identify_outliers(rcs);
+```
+
+### Normality test using Shapiro-wilk test.
+
+Completion Times
+```{r normal-completion-time-test}
+my_data %>% group_by(method) %>% shapiro_test(completion_time);
+```
+
+RCS
+```{r normal-rcs-test}
+my_data %>% group_by(method) %>% shapiro_test(rcs);
+```
+
+Error Rate is not presented as it is not normal
+
+### Homogeneity of Variances using Levene's test.
+
+Completion Times
+```{r variance-completion-time-test}
+leveneTest(my_data$completion_time~my_data$method);
+```
+
+RCS
+```{r variance-rcs-test}
+leveneTest(my_data$rcs~my_data$method);
+```
+
+### QQ-plots
+
+Completion Time
+```{r qq-completiont-time, echo=FALSE}
+ggqqplot(my_data,"completion_time", ggtheme = theme_bw()) + 
+  facet_grid(~method, labeller = "label_both");
+```
+
+RCS
+```{r qq-rcs, echo=FALSE}
+ggqqplot(my_data,"rcs", ggtheme = theme_bw()) + 
+  facet_grid(~method, labeller = "label_both");
+```
+
+## ANOVA
+
+Completion Time
+```{r ANOVA-completion-time, message=FALSE, warning=FALSE}
+ezANOVA(data = my_data, dv = .(completion_time), wid = .(pid), between = .(method), type = 3, detailed = T);
+```
+
+RCS
+```{r ANOVA-rcs, message=FALSE, warning=FALSE}
+ezANOVA(data = my_data, dv = .(rcs), wid = .(pid), between = .(method), type = 3, detailed = T);
+```
+
+Removing the outliers from the data does not change the ANOVA results.
+```{r outlier-dicard, message=FALSE, warning=FALSE}
+outlier_discard <- c(2,11,28,34,39,64)
+my_data_outlier_discarded <- my_data[!(my_data$pid %in% outlier_discard),]
+
+ezANOVA(data = my_data_outlier_discarded, dv = .(rcs), wid = .(pid), between = .(method), type = 3, detailed = T);
+```
+
+## KRUSKAL-WALLIS
+```{r kruskal-rcs, message = FALSE, warning = FALSE}
+kruskal.test(rcs~method, data = my_data)
+```
+## ANCOVA - COMPLETION TIME
+
+### Assumptions
+
+#### Linearity Assumption
+
+Completion Time vs Age
+```{r age_CT_linear, echo=FALSE, message=FALSE, warning=FALSE}
+ggscatter(
+  my_data, x = "age", y = "completion_time",
+  facet.by  = "method", 
+  short.panel.labs = FALSE
+)+
+  stat_smooth(method = "loess", span = 0.9)
+```
+
+The other covariates (gender, education, mid-air, problem solving) are categorical and plotting their data to assess their linearity does not make sense.
+
+#### Homogeneity of Regression Slopes
+
+According to https://www.datanovia.com/en/lessons/ancova-in-r/, the test for homogeniety of regression slopes is an ANOVA with the covariates coming in first (age, gender, education, mid-air, problem solving) then the grouping variable (method) and then every combination of intearations.
+
+```{r regress_slopes_CT}
+my_data %>%
+  anova_test(completion_time ~ 
+               age + 
+               gender + 
+               education + 
+               mid_air + 
+               problem_solving + 
+               method +
+               age * method +
+               gender * method +
+               education * method +
+               mid_air * method + 
+               problem_solving * method +
+               age * gender * method +
+               age * education * method +
+               age * mid_air * method +
+               age * problem_solving * method +
+               gender * education * method +
+               gender * mid_air * method + 
+               gender * problem_solving * method +
+               education * mid_air * method +
+               education * problem_solving * method +
+               mid_air * problem_solving * method +
+               age * gender * education * method +
+               age * gender * mid_air * method +
+               age * gender * problem_solving * method +
+               age * education * mid_air * method +
+               age * education * problem_solving * method +
+               age * mid_air * problem_solving * method +
+               gender * education * mid_air * method + 
+               gender * education * problem_solving * method +
+               gender * mid_air * problem_solving * method +
+               education * mid_air * problem_solving * method + 
+               age * gender * education * mid_air * problem_solving * method)
+```
+
+This does not make much sense to me as using (age * gender * education * mid_air * problem_solving * method) should give the same results but Senuri mentioned that order matters which is why the above monstrosity was constructed.
+
+Regression slope for completion time and age seems to deviate from the rest.
+
+#### Normality 
+
+```{r model-ancova-CT, include = FALSE}
+model.ct <- lm(completion_time ~ age + gender + education + mid_air + problem_solving + method, data = my_data)
+
+model.ct.metrics <- augment(model.ct) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+head(model.ct.metrics, 3)
+```
+
+Completion Times normality test using shapiro-wilk test. No significant results
+```{r normality-ancova-CT, echo=FALSE}
+shapiro_test(model.ct.metrics$.resid)
+```
+
+#### Homogeneity of variances
+Completion Times Homogeneity of variances test using levene's test. No significant results.
+```{r variance-CT, echo=FALSE}
+levene_test(.resid ~ method, data = model.ct.metrics)
+```
+
+#### Outliers
+
+Completion Time - no outliers were found
+```{r outliers-CT, echo=FALSE}
+model.ct.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+```
+
+#### Computation
+
+ANCOVA
+
+DV = completion time, IV = method, covariates = age, gender, education, mid_air, problem_solving, method
+```{r ancova-CT}
+res.aov <- my_data %>% 
+  anova_test(completion_time ~ age + gender + education + mid_air + problem_solving + method, type = 2)
+get_anova_table(res.aov)
+```
+
+## ANCOVA - RCS
+
+### Assumptions
+
+#### Linearity Assumption
+
+RCS vs Age
+```{r age_rcs_linear, echo=FALSE, message=FALSE, warning=FALSE}
+ggscatter(
+  my_data, x = "age", y = "completion_time",
+  facet.by  = "method", 
+  short.panel.labs = FALSE
+)+
+  stat_smooth(method = "loess", span = 0.9)
+```
+
+The other covariates (gender, education, mid-air, problem solving) are categorical and plotting their data to assess their linearity does not make sense.
+
+#### Homogeneity of Regression Slopes
+
+According to https://www.datanovia.com/en/lessons/ancova-in-r/, the test for homogeniety of regression slopes is an ANOVA with the covariates coming in first (age, gender, education, mid-air, problem solving) then the grouping variable (method) and then every combination of intearations.
+
+```{r regress_slopes_rcs}
+my_data %>%
+  anova_test(rcs ~ 
+               age + 
+               gender + 
+               education + 
+               mid_air + 
+               problem_solving + 
+               method +
+               age * method +
+               gender * method +
+               education * method +
+               mid_air * method + 
+               problem_solving * method +
+               age * gender * method +
+               age * education * method +
+               age * mid_air * method +
+               age * problem_solving * method +
+               gender * education * method +
+               gender * mid_air * method + 
+               gender * problem_solving * method +
+               education * mid_air * method +
+               education * problem_solving * method +
+               mid_air * problem_solving * method +
+               age * gender * education * method +
+               age * gender * mid_air * method +
+               age * gender * problem_solving * method +
+               age * education * mid_air * method +
+               age * education * problem_solving * method +
+               age * mid_air * problem_solving * method +
+               gender * education * mid_air * method + 
+               gender * education * problem_solving * method +
+               gender * mid_air * problem_solving * method +
+               education * mid_air * problem_solving * method + 
+               age * gender * education * mid_air * problem_solving * method)
+```
+
+This does not make much sense to me as using (age * gender * education * mid_air * problem_solving * method) should give the same results but Senuri mentioned that order matters which is why the above monstrosity was constructed.
+
+#### Normality 
+
+```{r model-ancova-rcs, include = FALSE}
+model.rcs <- lm(rcs ~ age + gender + education + mid_air + problem_solving + method, data = my_data)
+
+model.rcs.metrics <- augment(model.rcs) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+head(model.rcs.metrics, 3)
+```
+
+rcs normality test using shapiro-wilk test. SIGNIFICANT RESULTS
+```{r normality-ancova-rcs, echo=FALSE}
+shapiro_test(model.rcs.metrics$.resid)
+```
+
+#### Homogeneity of variances
+rcs homogeneity of variances test using levene's test. SIGNIFICANT RESULTS
+```{r variance-rcs, echo=FALSE}
+levene_test(.resid ~ method, data = model.rcs.metrics)
+```
+
+#### Outliers
+
+rcs - no outliers were found
+```{r outliers-rcs, echo=FALSE}
+model.rcs.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+```
+
+#### Computation
+
+The RCS Dependent Variable breaks both assumptions of normality and homogeneity of variances when taking covariates into account. ANCOVA may not be appropriate here.
+
+ANCOVA
+
+DV = rcs, IV = method, covariates = age, gender, education, mid_air, problem_solving, method
+```{r ancova-rcs}
+res.aov <- my_data %>% 
+  anova_test(rcs ~ age + gender + education + mid_air + problem_solving + method, type = 2)
+get_anova_table(res.aov)
+```

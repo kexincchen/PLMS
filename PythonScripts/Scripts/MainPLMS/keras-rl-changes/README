@@ -1,0 +1,7 @@
+Site packages found using: python -m keras
+under rl/agents/ddpg.py
+  there is an issue on line 184 and 185 where they flatten() the output of the self.actor (target?) network
+  and asserts for the shape of the user defined action_space.
+  IF action_space is not 1 dimensional, this always throws an assert error.
+
+  this was fixed by making the user defined action_space 1 dimensional and reshaping in the environment for use

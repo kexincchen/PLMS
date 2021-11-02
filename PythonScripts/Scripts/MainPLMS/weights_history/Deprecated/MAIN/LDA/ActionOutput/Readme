@@ -1,0 +1,1 @@
+This is used to store weights for a DDPG with a dense first network that considers gaze and task state data

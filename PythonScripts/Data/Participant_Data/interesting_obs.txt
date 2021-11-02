@@ -1,0 +1,7 @@
+Participants sorting through useless notes first tend to get useless notes as suggestions fromt he agent as the agent thinks the user is interested on these useless notes based on eye tracking.
+
+Participants like the 2 spatial arrangement of notes.
+
+Participants that say they do not trust the agent seem to perform worse (cite Yeh et al)
+
+Because the agent is dependent on organization of notes, participants spend more time organizing.

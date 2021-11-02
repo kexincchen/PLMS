@@ -1,0 +1,8 @@
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/Editor/Microsoft.Windows.MixedReality.DotNetWinRT.Editor.asmdef
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/Editor/Microsoft.Windows.MixedReality.DotNetWinRT.Editor.asmdef.meta
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/Editor/Microsoft.Windows.MixedReality.DotNetWinRT.Init.cs
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/Editor/Microsoft.Windows.MixedReality.DotNetWinRT.Init.cs.meta
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/x64/MonoSupport.dll
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/Microsoft.Windows.MixedReality.DotNetWinRT/x64/MonoSupport.dll.meta
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.bin/netstandard2.0/DotNetAdapter.deps.json
+/Users/bsyiem/Documents/UnityProjects/PLMS/Assets/MRTK/Providers/WindowsMixedReality/Shared/DotNetAdapter/.obj/Release/netstandard2.0/DotNetAdapter.csprojAssemblyReference.cache

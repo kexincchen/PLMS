@@ -1,0 +1,7 @@
+P5 guessed the answers and got last 3 questions wrong. Also, Clustering data was missing for P5
+
+P7 encountered a bug and clustering and agent stopped working.
+
+P25 did not perform the task correctly. Did not organise notes and just gave the answer.
+
+P29 discarded - created board on post it notes -> breaks networking. -> technical issue

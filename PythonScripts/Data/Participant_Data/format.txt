@@ -1,0 +1,9 @@
+pid	method	time(seconds)	answer1	answer2	answer3	answer4	answer5
+
+answer1 = who was the murderer?
+answer2 = the weapon?
+asnwer3 = the time of murder?
+answer4 = the place of murder?
+answer5 = the motive?
+
+answerx is a binary = 1 is correct, 0 is incorrect.

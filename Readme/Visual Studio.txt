@@ -1,0 +1,12 @@
+The built sln should target the windows version of the HoloLens
+right click sln -> properties -> Configuration Properties -> general -> target platforms min version
+https://stackoverflow.com/questions/55616928/mrtk-v2-need-to-update-hololens/55626479#55626479
+
+Also, when changing player settings from unity
+Player -> Publishing Settings
+
+sometimes changes don't reflect on the build solution
+I had this issue with the private networking capabilities.
+Make sure to check the built solutions capabilities after changing player settings in unity
+
+"Package.appxmanifest" -> capabilities 
