@@ -59,7 +59,7 @@ my_data$q5 <- as.factor(my_data$q5)
 # maybe use boxcox transformation
 
 #Maybe RCS from number of answes/second to number of answers/minute 
-#my_data$rcs <- my_data$rcs*60
+my_data$rcs <- my_data$rcs*60
 
 #discard participants
 to_discard <- c(5,7,25,29,41,47,62)
@@ -113,13 +113,21 @@ ggqqplot(my_data,"rcs", ggtheme = theme_bw()) +
 ezANOVA(data = my_data, dv = .(completion_time), wid = .(pid), between = .(method), type = 3, detailed = T);
 ezANOVA(data = my_data[my_data$all_q == 5,], dv = .(completion_time), wid = .(pid), between = .(method), type = 3, detailed = T);
 
-ezANOVA(data = my_data, dv = .(rcs), wid = .(pid), between = .(method), type = 3, detailed = T);
+ez.rcs <- ezANOVA(data = my_data, dv = .(rcs), wid = .(pid), between = .(method), type = 3, detailed = T);
+ez.rcs
+
+# Effect size
+ez.rcs$ANOVA$SSn/(ez.rcs$ANOVA$SSn + ez.rcs$ANOVA$SSd)
+
 
 #####################################
 #Kruskal-Wallis
 #####################################
 
 kruskal.test(rcs~method, data = my_data)
+
+# Effect size kruskal wallis test eta^2
+my_data %>% kruskal_effsize(rcs~method)
 
 #####################################
 #Plots
@@ -143,13 +151,13 @@ colnames(means_sd) <- c("Condition", "rcs", "sd")
 p <- ggplot(means_sd, aes(x = Condition, y = rcs, fill = Condition)) +
      geom_bar(stat = "identity", colour = "black", width = 0.8) +
      geom_errorbar(aes(ymin = rcs-sd, ymax = rcs + sd), width = 0.2, position = position_dodge(0.9)) +
-     #geom_text(aes(label = round(rcs, digits = 6)), y = 0.00015) +
-     geom_text(aes(label = scientific(rcs)), y = 0.00015) + # for scientific labels
+     geom_text(aes(label = round(rcs, digits = 3)), y = 0.006) +
+     #geom_text(aes(label = comma(rcs)), y = 0.006) + # for scientific labels
      ylab(label = "Rate Correct Score") +
      theme_minimal() +
      scale_fill_brewer(palette = "Accent") +
      scale_x_discrete(limits = c("Paper", "Unassisted AR", "Assisted AR")) +
-     scale_y_continuous(labels = scientific) # for scientific labels
+     scale_y_continuous(labels = comma) # for scientific labels
 
 p
 #####################################
@@ -381,7 +389,8 @@ leveneTest(my_data$avg_tlx~my_data$method);
 ggqqplot(my_data,"avg_tlx", ggtheme = theme_bw()) + 
   facet_grid(~method, labeller = "label_both");
 
-ezANOVA(data = my_data, dv = .(avg_tlx), wid = .(pid), between = .(method), type = 3, detailed = T);
+ez.tlx <- ezANOVA(data = my_data, dv = .(avg_tlx), wid = .(pid), between = .(method), type = 3, detailed = T);
+ez.tlx$ANOVA$SSn/(ez.tlx$ANOVA$SSn + ez.tlx$ANOVA$SSd)
 
 lm.model.tlx <- lmList(rcs ~ avg_tlx | method, data=my_data)
 lm.model.tlx
