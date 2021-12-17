@@ -160,6 +160,19 @@ p <- ggplot(means_sd, aes(x = Condition, y = rcs, fill = Condition)) +
      scale_y_continuous(labels = comma) # for scientific labels
 
 p
+
+p <- ggplot(means_sd, aes(x = Condition, y = rcs)) +
+  geom_bar(stat = "identity", colour = "black", fill = "#CCCCCC", width = 0.8) +
+  geom_errorbar(aes(ymin = rcs-sd, ymax = rcs + sd), width = 0.2, position = position_dodge(0.9)) +
+  geom_text(aes(label = round(rcs, digits = 3)), y = 0.006) +
+  #geom_text(aes(label = comma(rcs)), y = 0.006) + # for scientific labels
+  ylab(label = "Rate Correct Score") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Accent") +
+  scale_x_discrete(limits = c("Paper", "Unassisted AR", "Assisted AR")) +
+  scale_y_continuous(labels = comma) # for scientific labels
+
+p
 #####################################
 # Linear models
 #####################################
