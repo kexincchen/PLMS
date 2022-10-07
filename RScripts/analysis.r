@@ -499,6 +499,35 @@ quantiles <- quantile(my_data[my_data$method == "RL_CLUSTER",]$rcs)
 first_quartile <- my_data[my_data$method == "RL_CLUSTER" & my_data$rcs <= quantiles[[2]],]
 last_quartile <- my_data[my_data$method == "RL_CLUSTER" & my_data$rcs >= quantiles[[4]],]
 
+###################################
+# diff in performance between top 25% of each group
+###################################
+
+quantiles_p <- quantile(my_data[my_data$method == "PHYSICAL",]$rcs)
+quantiles_a <- quantile(my_data[my_data$method == "AR",]$rcs)
+
+last_quartile_p <- my_data[my_data$method == "PHYSICAL" & my_data$rcs >= quantiles_p[[4]],]
+last_quartile_a <- my_data[my_data$method == "AR" & my_data$rcs >= quantiles_a[[4]],]
+
+all_top = rbind(last_quartile,last_quartile_p,last_quartile_a)
+
+summary(all_top)
+
+
+completionTime_summary <- all_top %>% group_by(method) %>% get_summary_stats(completion_time, type = "mean_sd")
+completionTime_summary
+
+#Rate Correct Score (rcs) -> number of correct responses per second of activity
+rcs_summary <- all_top %>% group_by(method) %>% get_summary_stats(rcs, type = "mean_sd")
+rcs_summary
+
+ez.rcs.top <- ezANOVA(data = all_top, dv = .(rcs), wid = .(pid), between = .(method), type = 3, detailed = T);
+ez.rcs.top
+
+t.test(all_top[all_top$method == "PHYSICAL",]$rcs, all_top[all_top$method == "AR",]$rcs, var.equal = F)
+t.test(all_top[all_top$method == "PHYSICAL",]$rcs, all_top[all_top$method == "RL_CLUSTER",]$rcs, var.equal = F)
+t.test(all_top[all_top$method == "RL_CLUSTER",]$rcs, all_top[all_top$method == "AR",]$rcs, var.equal = F)
+
 #########################
 # Performance of participants with and without reports of interaction issues
 #########################
