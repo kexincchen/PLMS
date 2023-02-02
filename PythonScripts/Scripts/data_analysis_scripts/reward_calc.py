@@ -14,10 +14,16 @@ import re
 def calc_aggregate_reward(filename):
     with open(filename, newline = '') as state_file:
         file_reader = csv.reader(state_file)
+
         aggregate_reward = 0
         window_reward = 0
         prev_row = []
+
+        count_rows = 0
+
         for row_str in file_reader:
+            count_rows += 1
+
             # row with empty strings means window end
             if ('' in row_str):
                 aggregate_reward += window_reward
@@ -55,7 +61,7 @@ def calc_aggregate_reward(filename):
         #add final window reward as empty row won't be read
         aggregate_reward+=window_reward
 
-        return aggregate_reward
+        return aggregate_reward, count_rows+1
 
 # gets the required files holding state information about the experiment
 data_file_path = "../../Data/Participant_Data/RL_CLUSTER"
@@ -86,4 +92,7 @@ for f in state_files:
     if(int(pid[0]) in to_discard):
         continue
 
-    print(f"reward for {f} = {calc_aggregate_reward(f)/float(completion_time[pid[0]])}")
+    agg_reward, count_rows = calc_aggregate_reward(f)
+
+    print(f"\nrows in {f} = {count_rows}")
+    print(f"reward per second {f} = {agg_reward/float(completion_time[pid[0]])} \nreward per step {f} = {agg_reward/count_rows}")
