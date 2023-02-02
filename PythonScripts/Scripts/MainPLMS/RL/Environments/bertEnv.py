@@ -1,4 +1,4 @@
-from collections import OrderedDict
+zfrom collections import OrderedDict
 from gym import Env
 from gym.spaces import Discrete, Box, Dict, MultiDiscrete, Tuple
 import numpy as np, numpy.random
@@ -186,7 +186,7 @@ class BertEnv(Env):
                 if(abs(self.state[i,(self.embedding_size+1)] - self.previous_state[i,(self.embedding_size+1)]) == 0):
                     continue
                 if(self.state[i,self.embedding_size] == 0):
-                    reward =  reward - 2
+                    reward =  reward - 1
                     # reward =  reward - 5
                 if(self.state[i,self.embedding_size] == 1):
                     reward =  reward + 0.05
