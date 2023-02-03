@@ -252,8 +252,9 @@ def loadWeights(agent, weight_file):
 ####################################################################################################################################
 #test agent
 def testAgent(agent,env):
-    scores = agent.test(env, nb_episodes = 5, visualize = False)
+    scores = agent.test(env, nb_episodes = 20, visualize = False)
     print(np.mean(scores.history['episode_reward']))
+    return scores.history['episode_reward']
 
 ####################################################################################################################################
 
@@ -272,6 +273,20 @@ def printHelpAndExit():
     print("<script_name>.py -l --- DEPRECATED")
     print("for ip = 0.0.0.0 with port=12344 and method = RL\n")
     sys.exit(2)
+
+def getNormalizedScores(r_scores,ddpg_scores):
+    all_scores = r_scores + ddpg_scores
+
+    minimum = min(all_scores)
+    maximum = max(all_scores)
+
+    # Max and min possible rewards cannot be easily calculated as it would involve checking all possible select and non-select combinations along with different states
+    range = maximum-minimum
+
+    normalized_r_scores = [(x-minimum)/range for x in r_scores]
+    normalized_ddpg_scores = [(x-minimum)/range for x in ddpg_scores]
+
+    return normalized_r_scores,normalized_ddpg_scores
 
 
 def main(argv):
@@ -351,12 +366,18 @@ def main(argv):
         agent = trainDDPGAgent(agent, trainingEnv, weight_file)
 
         #test using RandomSolver
-        RandomSolver.solve(trainingEnv)
+        r_scores = RandomSolver.solve(trainingEnv, episodes=20)
 
         #test using agent
-        testAgent(agent,trainingEnv)
+        ddpg_scores = testAgent(agent,trainingEnv)
 
+        normalized_r_score, normalized_ddpg_score = getNormalizedScores(r_scores = r_scores,ddpg_scores = ddpg_scores)
 
+        print("Normalized Random Solver Scores are:")
+        print(normalized_r_score)
+
+        print("Normalized DDPG Scores are:")
+        print(normalized_ddpg_score)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

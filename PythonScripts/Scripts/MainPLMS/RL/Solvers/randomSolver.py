@@ -1,8 +1,8 @@
 class RandomSolver(object):
 
     @classmethod
-    def solve(cls, env):
-        episodes = 10
+    def solve(cls, env, episodes = 10):
+        scores = []
         for episode in range(0,episodes):
             state = env.reset()
             done = False
@@ -13,3 +13,5 @@ class RandomSolver(object):
                 n_state, reward, done, info = env.step(action)
                 score+=reward
             print('Episode:{} Score:{}'.format(episode, score))
+            scores.append(score)
+        return scores
