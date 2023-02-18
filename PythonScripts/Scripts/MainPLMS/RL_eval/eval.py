@@ -79,7 +79,7 @@ filename1 = "../../../Data/murder_mystery/stanford_mm.txt"
 filename2 = "../../../Data/murder_mystery/stanford_mm_distractions.txt"
 
 #bank robbery mystery
-# filename1 = "../../Data/murder_mystery/bank_robbery.txt"
+# filename1 = "../../../Data/murder_mystery/bank_robbery.txt"
 
 FILENAMES = []
 FILENAMES.append(filename1)
@@ -321,7 +321,7 @@ def main(argv):
 
 
     #instantiate TextProcessor
-    textProcessor = TextProcessor();
+    textProcessor = TextProcessor()
 
     #returns the dictionary of postIt notes
     # the ldaModel for identifying topics for the postIt notes

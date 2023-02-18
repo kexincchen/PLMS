@@ -581,3 +581,71 @@ leveneTest(new_data$rcs~new_data$interaction_issue);
 kruskal.test(rcs~interaction_issue, data = new_data)
 
 
+#############################################################################################################################
+#########################
+# AGENT vs RANDOM SOLVER
+#########################
+
+agent_rewards <- c(0.9995548489666136, 0.8908165919930641, 0.8709004191357123, 0.9730192224309856, 0.8621072409307717, 0.9826448908801841, 0.9625957508310439, 0.8728775834658171, 0.98837404249169, 0.9242202630437912, 0.9897152767740995, 0.971591270414801, 0.898881341234281, 0.8865442983090054, 1.0, 0.8704032374620618, 0.9959647347882641, 0.8778320566555847, 0.8979679144385012, 0.8732533603121847)
+random_solver_rewards <- c(0.140534759358288, 0.11719034542563869, 0.09954617719323511, 0.11414366237895582, 0.14486486486486408, 0.023165197282843348, 0.10909090909090853, 0.2684723225899686, 0.16594305535481962, 0.009949414655297141, 0.0, 0.10609047550223935, 0.13342968637086303, 0.08177482295129317, 0.2545107674519431, 0.15048417401358502, 0.061118658765715775, 0.08015031073854574, 0.11834658187599258, 0.20663101604277956)
+
+agent_rewards <- data.frame(rep("AG",length(agent_rewards)),agent_rewards)
+random_solver_rewards <- data.frame(rep("RS",length(random_solver_rewards)),random_solver_rewards)
+
+colnames(agent_rewards) <- c('Solver','Reward')
+colnames(random_solver_rewards) <- c('Solver','Reward')
+
+all_rewards <- rbind(agent_rewards,random_solver_rewards)
+
+reward_summary <- all_rewards %>% group_by(Solver) %>% get_summary_stats(Reward, type = "mean_sd")
+reward_summary
+
+# ASSUMPTIONS
+#outlier
+all_rewards %>% group_by(Solver) %>% identify_outliers(Reward);
+
+#shapiro test
+all_rewards %>% group_by(Solver) %>% shapiro_test(Reward);
+
+#test homogeneity
+leveneTest(all_rewards$Reward~all_rewards$Solver);
+
+#qqplots
+ggqqplot(all_rewards,"Reward", ggtheme = theme_bw()) + 
+  facet_grid(~Solver, labeller = "label_both");
+
+kruskal.test(Reward~Solver, data = all_rewards)
+
+#########################
+# AGENT VS RANDOM SOLVER (NON-NORMALIZED)
+#########################
+
+agent_rewards <- c(-590.500, -1530.950, -1703.200, -820.000, -1779.250, -736.750, -910.150, -1686.100, -687.200, -1242.050, -675.600, -832.350, -1461.200, -1567.900, -586.650, -1707.500, -621.550, -1643.250, -1469.100, -1682.850)
+random_solver_rewards <- c(-8019.950000000002,-8221.850000000002,-8374.450000000003,-8248.2,-7982.500000000002,-9035.050000000003,-8291.9,-6913.450000000004,-7800.199999999999,-9149.349999999993,-9235.399999999994,-8317.850000000002,-8081.399999999993,-8528.149999999998,-7034.200000000003,-7933.9000000000015,-8706.80000000001,-8542.199999999997,-8211.850000000004,-7448.300000000006)
+
+agent_rewards <- data.frame(rep("AG",length(agent_rewards)),agent_rewards)
+random_solver_rewards <- data.frame(rep("RS",length(random_solver_rewards)),random_solver_rewards)
+
+colnames(agent_rewards) <- c('Solver','Reward')
+colnames(random_solver_rewards) <- c('Solver','Reward')
+
+all_rewards <- rbind(agent_rewards,random_solver_rewards)
+
+reward_summary <- all_rewards %>% group_by(Solver) %>% get_summary_stats(Reward, type = "mean_sd")
+reward_summary
+
+# ASSUMPTIONS
+#outlier
+all_rewards %>% group_by(Solver) %>% identify_outliers(Reward);
+
+#shapiro test
+all_rewards %>% group_by(Solver) %>% shapiro_test(Reward);
+
+#test homogeneity
+leveneTest(all_rewards$Reward~all_rewards$Solver);
+
+#qqplots
+ggqqplot(all_rewards,"Reward", ggtheme = theme_bw()) + 
+  facet_grid(~Solver, labeller = "label_both");
+
+kruskal.test(Reward~Solver, data = all_rewards)

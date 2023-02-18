@@ -107,10 +107,12 @@ def main(argv):
         print(f"\nrows in {f} = {count_rows}")
         print(f"reward per second {f} = {agg_reward/float(completion_time[pid[0]])} \nreward per step {f} = {agg_reward/steps}")
 
-        if(pid[0] == '61'):
-            print(rewards_step_dict)
-            plt.plot(rewards_step_dict.keys(),rewards_step_dict.values())
-            plt.show()
+        print(rewards_step_dict) # take normalized reward for step min(360, max_step) to show reward similar to that of the simulations
+
+
+        # if(pid[0] == '61'):
+        #     plt.plot(rewards_step_dict.keys(),rewards_step_dict.values())
+        #     plt.show()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
