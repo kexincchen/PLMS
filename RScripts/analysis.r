@@ -614,8 +614,12 @@ leveneTest(all_rewards$Reward~all_rewards$Solver);
 ggqqplot(all_rewards,"Reward", ggtheme = theme_bw()) + 
   facet_grid(~Solver, labeller = "label_both");
 
-kruskal.test(Reward~Solver, data = all_rewards)
+#kruskal.test(Reward~Solver, data = all_rewards)
+wilcox.test(all_rewards[all_rewards$Solver == "AG",]$Reward, all_rewards[all_rewards$Solver == "RS",]$Reward)
+wilcox_test(all_rewards$Reward~factor(all_rewards$Solver), distribution = "exact")
 
+effect_size = 5.41/sqrt(nrow(all_rewards))
+effect_size
 #########################
 # AGENT VS RANDOM SOLVER (NON-NORMALIZED)
 #########################
@@ -648,4 +652,9 @@ leveneTest(all_rewards$Reward~all_rewards$Solver);
 ggqqplot(all_rewards,"Reward", ggtheme = theme_bw()) + 
   facet_grid(~Solver, labeller = "label_both");
 
-kruskal.test(Reward~Solver, data = all_rewards)
+#kruskal.test(Reward~Solver, data = all_rewards)
+wilcox.test(all_rewards[all_rewards$Solver == "AG",]$Reward, all_rewards[all_rewards$Solver == "RS",]$Reward)
+wilcox_test(all_rewards$Reward~factor(all_rewards$Solver), distribution = "exact")
+
+effect_size = 5.41/sqrt(nrow(all_rewards))
+effect_size
