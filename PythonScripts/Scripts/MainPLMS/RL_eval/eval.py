@@ -225,10 +225,19 @@ def trainDDPGAgent(agent, env, weight_file):
         ):
         # print("file exists")
         agent.load_weights(weight_file)
+
+        # to load history
+        # history = np.load('my_history.npy', allow_pickle='TRUE').item()
     else:
         # print("file does not exists")
-        agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1)
-        # agent.fit(env, nb_episodes = 15, visualize = False, verbose = 1) # for TESTING
+        # agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1)
+
+        # for TESTING
+        history = agent.fit(env, nb_episodes = 30, visualize = False, verbose = 1) # possibly do this for 1 then 2 then 3 ,.... episodes and plot rewards
+        print(history.history.keys())
+        print(history.history)
+        # to save history
+        np.save('my_history_eval.npy', history.history)
         agent.save_weights(weight_file, overwrite = True)
 
     return agent
