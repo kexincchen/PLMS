@@ -4,6 +4,7 @@ import os.path
 import numpy as np
 import gym
 import math
+import matplotlib.pyplot as plt
 
 sys.path.append("..")
 
@@ -228,7 +229,7 @@ def trainDDPGAgent(agent, env, weight_file):
         agent.load_weights(weight_file)
 
         # to load history
-        history = np.load('my_history.npy', allow_pickle='TRUE').item()
+        history = np.load('my_history_eval.npy', allow_pickle='TRUE').item()
     else:
         # print("file does not exists")
         # agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1)
@@ -237,9 +238,16 @@ def trainDDPGAgent(agent, env, weight_file):
         history = agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1) # possibly do this for 1 then 2 then 3 ,.... episodes and plot rewards
         print(history.history.keys())
         print(history.history)
+        history = history.history
         # to save history
         np.save('my_history_eval.npy', history.history)
         agent.save_weights(weight_file, overwrite = True)
+
+    plt.plot(history['episode_reward'])
+    plt.title('Rewards')
+    plt.ylabel('episode_reward')
+    plt.xlabel('what')
+    plt.show()
 
     return agent
 
