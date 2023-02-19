@@ -5,6 +5,7 @@ import numpy as np
 import gym
 import math
 
+sys.path.append("..")
 
 from tensorflow.keras.optimizers import Adam
 
@@ -227,13 +228,13 @@ def trainDDPGAgent(agent, env, weight_file):
         agent.load_weights(weight_file)
 
         # to load history
-        # history = np.load('my_history.npy', allow_pickle='TRUE').item()
+        history = np.load('my_history.npy', allow_pickle='TRUE').item()
     else:
         # print("file does not exists")
         # agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1)
 
         # for TESTING
-        history = agent.fit(env, nb_episodes = 30, visualize = False, verbose = 1) # possibly do this for 1 then 2 then 3 ,.... episodes and plot rewards
+        history = agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1) # possibly do this for 1 then 2 then 3 ,.... episodes and plot rewards
         print(history.history.keys())
         print(history.history)
         # to save history
