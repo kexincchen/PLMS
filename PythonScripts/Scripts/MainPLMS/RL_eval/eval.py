@@ -76,16 +76,16 @@ MAX_POST_PER_STEP = 3
 method = "RL"
 
 #stanford murder mystery
-filename1 = "../../../Data/murder_mystery/stanford_mm.txt"
+# filename1 = "../../../Data/murder_mystery/stanford_mm.txt"
 #stanford murder mystery DISTRACTIONS
-filename2 = "../../../Data/murder_mystery/stanford_mm_distractions.txt"
+# filename2 = "../../../Data/murder_mystery/stanford_mm_distractions.txt"
 
 #bank robbery mystery
-# filename1 = "../../../Data/murder_mystery/bank_robbery.txt"
+filename1 = "../../../Data/murder_mystery/bank_robbery.txt"
 
 FILENAMES = []
 FILENAMES.append(filename1)
-FILENAMES.append(filename2)
+# FILENAMES.append(filename2)
 
 # for storing the participant ID
 pid = -1
@@ -240,7 +240,8 @@ def trainDDPGAgent(agent, env, weight_file):
         print(history.history)
         history = history.history
         # to save history
-        np.save('my_history_eval.npy', history.history)
+        np.save('my_history_eval.npy', history)
+
         agent.save_weights(weight_file, overwrite = True)
 
     plt.plot(history['episode_reward'])
