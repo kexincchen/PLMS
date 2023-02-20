@@ -228,8 +228,6 @@ def trainDDPGAgent(agent, env, weight_file):
         # print("file exists")
         agent.load_weights(weight_file)
 
-        # to load history
-        history = np.load('my_history_eval.npy', allow_pickle='TRUE').item()
     else:
         # print("file does not exists")
         # agent.fit(env, nb_episodes = 138, visualize = False, verbose = 1)
@@ -243,12 +241,6 @@ def trainDDPGAgent(agent, env, weight_file):
         np.save('my_history_eval.npy', history)
 
         agent.save_weights(weight_file, overwrite = True)
-
-    plt.plot(history['episode_reward'])
-    plt.title('Rewards')
-    plt.ylabel('episode_reward')
-    plt.xlabel('episodes')
-    plt.show()
 
     return agent
 
@@ -293,8 +285,8 @@ def printHelpAndExit():
     print("for ip = 0.0.0.0 with port=12344 and method = RL\n")
     sys.exit(2)
 
-def getNormalizedScores(r_scores,ddpg_scores):
-    all_scores = r_scores + ddpg_scores
+def getNormalizedScores(t_scores, r_scores,ddpg_scores):
+    all_scores = t_scores + r_scores + ddpg_scores
 
     minimum = min(all_scores)
     maximum = max(all_scores)
@@ -304,8 +296,9 @@ def getNormalizedScores(r_scores,ddpg_scores):
 
     normalized_r_scores = [(x-minimum)/range for x in r_scores]
     normalized_ddpg_scores = [(x-minimum)/range for x in ddpg_scores]
+    normalized_t_scores = [(x - minimum) / range for x in t_scores]
 
-    return normalized_r_scores,normalized_ddpg_scores
+    return normalized_t_scores, normalized_r_scores, normalized_ddpg_scores
 
 
 def main(argv):
@@ -317,26 +310,6 @@ def main(argv):
     global pid
 
     global started
-
-    # try:
-    #     opts,args = getopt.getopt(argv,"hl:m:",["method="])
-    # except getopt.GetoptError:
-    #     printHelpAndExit()
-    #
-    # #exit if no arguments
-    # if(not opts):
-    #     printHelpAndExit()
-    #
-    # for opt,val in opts:
-    #     if(opt == "-h"):
-    #         printHelpAndExit()
-    #     if(opt == "-l"):
-    #         break
-    #     if(opt in ("-m","--method")):
-    #         method = val
-
-
-
 
 
     #instantiate TextProcessor
@@ -390,13 +363,28 @@ def main(argv):
         #test using agent
         ddpg_scores = testAgent(agent,trainingEnv)
 
-        normalized_r_score, normalized_ddpg_score = getNormalizedScores(r_scores = r_scores,ddpg_scores = ddpg_scores)
+        # get training history (rewards and episodes)
+        history = np.load('my_history_eval.npy', allow_pickle='TRUE').item()
+
+        print(history.keys())
+
+
+        normalized_t_scores, normalized_r_scores, normalized_ddpg_scores = getNormalizedScores(t_scores = history['episode_reward'], r_scores = r_scores, ddpg_scores = ddpg_scores)
+
+        print("Normalized training Scores are:")
+        print(normalized_t_scores)
+
+        plt.plot(normalized_t_scores, color = "black")
+        plt.title('Rewards')
+        plt.ylabel('episode_reward')
+        plt.xlabel('episodes')
+        plt.show()
 
         print("Normalized Random Solver Scores are:")
-        print(normalized_r_score)
+        print(normalized_r_scores)
 
         print("Normalized DDPG Scores are:")
-        print(normalized_ddpg_score)
+        print(normalized_ddpg_scores)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
