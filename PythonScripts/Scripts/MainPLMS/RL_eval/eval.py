@@ -247,7 +247,7 @@ def trainDDPGAgent(agent, env, weight_file):
     plt.plot(history['episode_reward'])
     plt.title('Rewards')
     plt.ylabel('episode_reward')
-    plt.xlabel('what')
+    plt.xlabel('episodes')
     plt.show()
 
     return agent
